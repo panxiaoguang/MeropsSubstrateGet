@@ -76,11 +76,11 @@ async def parse_Merops(sem, name, url):
     # cat = await download_Enzyme(url)
     async with sem:
         fina = await download_substrate(url.replace("pepsum", "substrates"))
-    print("downloading database in url :{}".format(
+        print("downloading database in url :{}".format(
         url.replace("pepsum", "substrates")))
-    if fina:
-        pachong = [(name, val, key) for key, val in fina.items()]
-        table.extend(pachong)
+        if fina:
+            pachong = [(name, val, key) for key, val in fina.items()]
+            table.extend(pachong)
 
 sem = asyncio.Semaphore(50)
 loop = asyncio.get_event_loop()
