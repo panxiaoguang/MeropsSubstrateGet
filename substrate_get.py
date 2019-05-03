@@ -6,6 +6,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 import aiohttp
+import re
 parser = argparse.ArgumentParser(
     description='YOU CAN USE IT TO DOWNLOAD ALL SUBSTRATES OF ONE PROTEIN FAMILY')
 parser.add_argument('--fm', '-f', help='please input your family number!')
@@ -35,9 +36,31 @@ def get_urls(fm):
     result = requests.get(url).content
     root = "https://www.ebi.ac.uk"
     soup = BeautifulSoup(result, 'lxml')
+    if re.match("\D\d+\D", fm):
+        print("it's in sub famliy")
+        if int(re.findall("\d+", fm)[0]) < 10:
+            fm = re.sub("\d", "0{}".format(re.findall("\d+", fm)[0]), fm)
+        tab = soup.select('#{}'.format(fm))
+        new_tab = tab[0].parent.parent.parent.parent.next_sibling
+        haha = new_tab.select('td[align="center"] > a')
+        urls = {heihei.get_text(): root+heihei.get("href") for heihei in haha}
+        return urls
+    else:
+        tab = soup.select('td[align="center"] > a')
+        urls = {heihei.get_text(): root+heihei.get("href") for heihei in tab}
+        return urls
+
+
+'''
+def get_urls(fm):
+    url = "https://www.ebi.ac.uk/merops/cgi-bin/famsum?family={}".format(fm)
+    result = requests.get(url).content
+    root = "https://www.ebi.ac.uk"
+    soup = BeautifulSoup(result, 'lxml')
     tab = soup.select('td[align="center"] > a')
     urls = {heihei.get_text(): root+heihei.get("href") for heihei in tab}
     return urls
+'''
 
 
 async def fetch(session, url):
@@ -76,11 +99,11 @@ async def parse_Merops(sem, name, url):
     # cat = await download_Enzyme(url)
     async with sem:
         fina = await download_substrate(url.replace("pepsum", "substrates"))
-    print("downloading database in url :{}".format(
-        url.replace("pepsum", "substrates")))
-    if fina:
-        pachong = [(name, val, key) for key, val in fina.items()]
-        table.extend(pachong)
+        print("downloading database in url :{}".format(
+            url.replace("pepsum", "substrates")))
+        if fina:
+            pachong = [(name, val, key) for key, val in fina.items()]
+            table.extend(pachong)
 
 sem = asyncio.Semaphore(50)
 loop = asyncio.get_event_loop()
@@ -90,5 +113,5 @@ tasks = asyncio.wait(tasks)
 loop.run_until_complete(tasks)
 df = pd.DataFrame(
     table, columns=['merops_id', 'substrate', 'sequence'])
-df.to_csv(os.path.join(args.out, "result.csv"), index=False)
+df.to_csv(os.path.join(args.out, "{}.csv".format(args.fm)), index=False)
 print("All done! please check your result file.")
