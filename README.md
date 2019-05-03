@@ -4,8 +4,9 @@
 
 ### 版本
 
-版本 2 采用`async`,`aiohttp`,`requests`,`beautufulsoup`等库实现异步抓去蛋白酶数据库数据
-
+~~版本 2 采用`async`,`aiohttp`,`requests`,`beautufulsoup`等库实现~~异步抓去蛋白酶数据库数据
+更新版本3
+添加识别亚家族的功能，自动生成所需要的文件名
 ### 环境依赖
 
 1. python >=3.6
