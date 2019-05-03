@@ -100,11 +100,7 @@ async def parse_Merops(sem, name, url):
     async with sem:
         fina = await download_substrate(url.replace("pepsum", "substrates"))
         print("downloading database in url :{}".format(
-<<<<<<< HEAD
             url.replace("pepsum", "substrates")))
-=======
-        url.replace("pepsum", "substrates")))
->>>>>>> f74e06f8b0e94d2b9eb3ac5f3e9d0d9ef55362df
         if fina:
             pachong = [(name, val, key) for key, val in fina.items()]
             table.extend(pachong)
